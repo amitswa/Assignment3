@@ -1,0 +1,38 @@
+name: Main build
+on:
+  push:
+    branches:
+      - main
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.0.0
+      #- name: Configuring jFrog CLI...
+      #  uses: jfrog/setup-jfrog-cli@v1.1.4
+      #  env:
+      #    JF_ARTIFACTORY_1: ${{ secrets.JF_ARTIFACTORY_ADVANCEDCSG }}
+      
+      - name: Configure AWS 
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          role-to-assume: arn:aws:iam::069705096352:role/assignment3-3
+          aws-region: eu-west-2
+      - name: Advanced Artefacts CLI - Setup
+        uses: advancedcsg/actions-setup-advanced-artefacts-cli@v1.2.1
+      - name: Set Docker env variables
+        run: |
+          echo "docker_image_name=adv-get-ec2-soc-report" >> $GITHUB_ENV
+          echo "docker_repository=/advanced/toolchain/dev/adv-get-ec2-soc-report" >> $GITHUB_ENV
+          echo "docker_registry=592311462240.dkr.ecr.eu-west-2.amazonaws.com" >> $GITHUB_ENV
+      - name: Docker build and tag
+        run: |
+          docker build -t ${{ env.docker_image_name }}:latest .
+          docker tag ${{ env.docker_image_name }}:latest ${{ env.docker_registry }}${{ env.docker_repository }}:latest
+      - name: Docker Push
+        run: |
+          docker push ${{ env.docker_registry }}${{ env.docker_repository }}:latest
