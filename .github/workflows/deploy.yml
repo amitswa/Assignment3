@@ -40,7 +40,6 @@ jobs:
 
       - name: Advanced Artefacts CLI - Setup
 
-        uses: advancedcsg/actions-setup-advanced-artefacts-cli@v1.2.1
 
       - name: Set Docker env variables
 
