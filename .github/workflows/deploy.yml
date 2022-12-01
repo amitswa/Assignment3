@@ -26,6 +26,9 @@ jobs:
           echo "docker_image_name=local-assignment-3" >> $GITHUB_ENV
           echo "docker_repository=/local-assignment-3" >> $GITHUB_ENV
           echo "docker_registry=069705096352.dkr.ecr.eu-west-2.amazonaws.com" >> $GITHUB_ENV
+          
+      - name: Advanced Artefacts CLI - Setup
+        uses: advancedcsg/actions-setup-advanced-artefacts-cli@v1.1.0
       - name: Docker build and tag
         run: |
           docker build -t ${{ env.docker_image_name }}:latest .
