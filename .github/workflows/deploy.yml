@@ -1,66 +1,35 @@
+name: Docker Image CI
+
 on:
-
   push:
-
     branches:
-
       - main
-
 jobs:
-
   docker-build:
-
     runs-on: ubuntu-latest
-
     permissions:
-
       id-token: write
-
       contents: read
-
     steps:
-
       - name: Checkout
-
         uses: actions/checkout@v3.0.0
-
-     
-
-     
-
-      - name: Configure AWS
-
+      
+      
+      - name: Configure AWS 
         uses: aws-actions/configure-aws-credentials@v1-node16
-
         with:
-
           role-to-assume: arn:aws:iam::069705096352:role/assignment_ecr
-
           aws-region: eu-west-2
-
-      - name: Advanced Artefacts CLI - Setup
-
-
+     
       - name: Set Docker env variables
-
         run: |
-
-          echo "docker_image_name=i" >> $GITHUB_ENV
-
+          echo "docker_image_name=ecb-web-image" >> $GITHUB_ENV
           echo "docker_repository=/ecb-web-image" >> $GITHUB_ENV
-
           echo "docker_registry=069705096352.dkr.ecr.eu-west-2.amazonaws.com" >> $GITHUB_ENV
-
       - name: Docker build and tag
-
         run: |
-
           docker build -t ${{ env.docker_image_name }}:latest .
-
           docker tag ${{ env.docker_image_name }}:latest ${{ env.docker_registry }}${{ env.docker_repository }}:latest
-
       - name: Docker Push
-
         run: |
-
           docker push ${{ env.docker_registry }}${{ env.docker_repository }}:latest
