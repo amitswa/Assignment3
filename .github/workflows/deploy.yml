@@ -1,37 +1,67 @@
-name: deploy
 on:
+
   push:
+
     branches:
+
       - main
-env:
-  AWS_DEFAULT_REGION: us-east-1
-  AWS_DEFAULT_OUTPUT: json
 
 jobs:
-  deploy-cfn:
-    name: deploy
+
+  docker-build:
+
     runs-on: ubuntu-latest
-    # These permissions are needed to interact with GitHub’s OIDC Token endpoint.
+
     permissions:
+
       id-token: write
+
       contents: read
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1-node16
-      with:
-        aws-region: us-east-1
-        ## the following creates an ARN based on the values entered into github secrets
-        role-to-assume: arn:aws:iam::069705096352:role/assignment_ecr
-        role-session-name: myGitHubActions
-    - name: Deploy EC2 Bastion
-      uses: aws-actions/aws-cloudformation-github-deploy@v1.0.3
-      with:
-        name: myEC2bastion
-        ## change to path to template in your github repo
-        template: cloudformation/ec2-bastion.yml
-        capabilities: CAPABILITY_IAM, CAPABILITY_NAMED_IAM
-        no-fail-on-empty-changeset: "1"
-        ## parameter set in github secrets
-        parameter-overrides: "pVpc=${{ secrets.VPC_ID }},pSubnet=${{ secrets.SUBNET_ID }}"
+
+      - name: Checkout
+
+        uses: actions/checkout@v3.0.0
+
+     
+
+     
+
+      - name: Configure AWS
+
+        uses: aws-actions/configure-aws-credentials@v1-node16
+
+        with:
+
+          role-to-assume: arn:aws:iam::069705096352:role/assignment_ecr
+
+          aws-region: eu-west-2
+
+      - name: Advanced Artefacts CLI - Setup
+
+        uses: advancedcsg/actions-setup-advanced-artefacts-cli@v1.2.1
+
+      - name: Set Docker env variables
+
+        run: |
+
+          echo "docker_image_name=i" >> $GITHUB_ENV
+
+          echo "docker_repository=/ecb-web-image" >> $GITHUB_ENV
+
+          echo "docker_registry=069705096352.dkr.ecr.eu-west-2.amazonaws.com" >> $GITHUB_ENV
+
+      - name: Docker build and tag
+
+        run: |
+
+          docker build -t ${{ env.docker_image_name }}:latest .
+
+          docker tag ${{ env.docker_image_name }}:latest ${{ env.docker_registry }}${{ env.docker_repository }}:latest
+
+      - name: Docker Push
+
+        run: |
+
+          docker push ${{ env.docker_registry }}${{ env.docker_repository }}:latest
