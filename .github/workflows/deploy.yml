@@ -23,8 +23,8 @@ jobs:
      
       - name: Set Docker env variables
         run: |
-          echo "docker_image_name=ecb-web-image" >> $GITHUB_ENV
-          echo "docker_repository=/ecb-web-image" >> $GITHUB_ENV
+          echo "docker_image_name=local-assignment-3" >> $GITHUB_ENV
+          echo "docker_repository=/local-assignment-3" >> $GITHUB_ENV
           echo "docker_registry=069705096352.dkr.ecr.eu-west-2.amazonaws.com" >> $GITHUB_ENV
       - name: Docker build and tag
         run: |
